@@ -718,9 +718,9 @@ func TestPrependChild(t *testing.T) {
 	})
 }
 
-func TestReplaceNode(t *testing.T) {
-	// new node is from existing element
-	t.Run("new node from existing element", func(t *testing.T) {
+func TestReplaceChild(t *testing.T) {
+	// new child is from existing element
+	t.Run("new child from existing element", func(t *testing.T) {
 		htmlSource := `<div><p>Lonely word</p><span>new friend</span></div>`
 		want := `<div><span>new friend</span></div>`
 
@@ -732,13 +732,13 @@ func TestReplaceNode(t *testing.T) {
 		p := dom.GetElementsByTagName(doc, "p")[0]
 		span := dom.GetElementsByTagName(doc, "span")[0]
 
-		dom.ReplaceNode(p, span)
+		dom.ReplaceChild(doc, span, p)
 		if got := dom.OuterHTML(doc); got != want {
 			t.Errorf("ReplaceNode() = %v, want %v", got, want)
 		}
 	})
 
-	// new node is new element
+	// new child is new element
 	t.Run("new node is new element", func(t *testing.T) {
 		htmlSource := `<div><p>Lonely word</p><span>new friend</span></div>`
 		want := `<div><span></span><span>new friend</span></div>`
@@ -749,9 +749,9 @@ func TestReplaceNode(t *testing.T) {
 		}
 
 		p := dom.GetElementsByTagName(doc, "p")[0]
-		newNode := dom.CreateElement("span")
+		newChild := dom.CreateElement("span")
 
-		dom.ReplaceNode(p, newNode)
+		dom.ReplaceChild(doc, newChild, p)
 		if got := dom.OuterHTML(doc); got != want {
 			t.Errorf("ReplaceNode() = %v, want %v", got, want)
 		}

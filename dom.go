@@ -277,26 +277,30 @@ func PrependChild(node *html.Node, child *html.Node) {
 	}
 }
 
-// ReplaceNode replaces an oldNode with a newNode.
-// If the new node is a reference to an existing node in the
-// document, ReplaceNode() moves it from its current position
-// to replacing old node.
-func ReplaceNode(oldNode *html.Node, newNode *html.Node) {
-	if oldNode.Parent == nil {
-		return
+// ReplaceChild replaces a child node within the given (parent) node.
+// If the new child is already exist in document, ReplaceChild() will move it
+// from its current position to replace old child. Returns both the new and old child.
+func ReplaceChild(parent *html.Node, newChild *html.Node, oldChild *html.Node) (*html.Node, *html.Node) {
+	if parent == nil {
+		return nil, nil
 	}
 
-	if newNode.Parent != nil {
-		tmp := CloneNode(newNode)
-		newNode.Parent.RemoveChild(newNode)
-		newNode = tmp
+	if oldChild.Parent != parent {
+		return nil, nil
 	}
 
-	newNode.Parent = nil
-	newNode.PrevSibling = nil
-	newNode.NextSibling = nil
-	oldNode.Parent.InsertBefore(newNode, oldNode)
-	oldNode.Parent.RemoveChild(oldNode)
+	if newChild.Parent != nil {
+		tmp := CloneNode(newChild)
+		newChild.Parent.RemoveChild(newChild)
+		newChild = tmp
+	}
+
+	newChild.PrevSibling = nil
+	newChild.NextSibling = nil
+	parent.InsertBefore(newChild, oldChild)
+	parent.RemoveChild(oldChild)
+
+	return newChild, oldChild
 }
 
 // IncludeNode determines if node is included inside nodeList.
