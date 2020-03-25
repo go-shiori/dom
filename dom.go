@@ -50,9 +50,14 @@ func CreateTextNode(data string) *html.Node {
 // TagName returns the tag name of a Node.
 // If it's not ElementNode, return empty string.
 func TagName(node *html.Node) string {
+	if node == nil {
+		return ""
+	}
+
 	if node.Type != html.ElementNode {
 		return ""
 	}
+
 	return node.Data
 }
 
