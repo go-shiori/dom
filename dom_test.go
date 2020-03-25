@@ -36,9 +36,10 @@ func TestGetElementsByTagName(t *testing.T) {
 		"*":   31,
 	}
 
+	mainDiv := doc.FirstChild
 	for tagName, count := range tests {
 		t.Run(tagName, func(t *testing.T) {
-			if got := len(dom.GetElementsByTagName(doc, tagName)); got != count {
+			if got := len(dom.GetElementsByTagName(mainDiv, tagName)); got != count {
 				t.Errorf("GetElementsByTagName() = %v, want %v", got, count)
 			}
 		})
@@ -147,12 +148,12 @@ func TestGetAttribute(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			node, err := parseHTMLSource(tt.htmlSource)
+			doc, err := parseHTMLSource(tt.htmlSource)
 			if err != nil {
 				t.Errorf("GetAttribute(), failed to parse: %v", err)
 			}
 
-			if got := dom.GetAttribute(node, tt.attrName); got != tt.want {
+			if got := dom.GetAttribute(doc.FirstChild, tt.attrName); got != tt.want {
 				t.Errorf("GetAttribute() = %v, want %v", got, tt.want)
 			}
 		})
@@ -188,11 +189,12 @@ func TestSetAttribute(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			node, err := parseHTMLSource(tt.htmlSource)
+			doc, err := parseHTMLSource(tt.htmlSource)
 			if err != nil {
 				t.Errorf("SetAttribute(), failed to parse: %v", err)
 			}
 
+			node := doc.FirstChild
 			dom.SetAttribute(node, tt.attrName, tt.attrValue)
 			if outerHTML := dom.OuterHTML(node); outerHTML != tt.want {
 				t.Errorf("setAttribute() = %v, want %v", outerHTML, tt.want)
@@ -226,11 +228,12 @@ func TestRemoveAttribute(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			node, err := parseHTMLSource(tt.htmlSource)
+			doc, err := parseHTMLSource(tt.htmlSource)
 			if err != nil {
 				t.Errorf("RemoveAttribute(), failed to parse: %v", err)
 			}
 
+			node := doc.FirstChild
 			dom.RemoveAttribute(node, tt.attrName)
 			if outerHTML := dom.OuterHTML(node); outerHTML != tt.want {
 				t.Errorf("RemoveAttribute() = %v, want %v", outerHTML, tt.want)
@@ -259,12 +262,12 @@ func TestHasAttribute(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			node, err := parseHTMLSource(tt.htmlSource)
+			doc, err := parseHTMLSource(tt.htmlSource)
 			if err != nil {
 				t.Errorf("HasAttribute(), failed to parse: %v", err)
 			}
 
-			if got := dom.HasAttribute(node, tt.attrName); got != tt.want {
+			if got := dom.HasAttribute(doc.FirstChild, tt.attrName); got != tt.want {
 				t.Errorf("HasAttribute() = %v, want %v", got, tt.want)
 			}
 		})
@@ -304,12 +307,12 @@ func TestTextContent(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			node, err := parseHTMLSource(tt.htmlSource)
+			doc, err := parseHTMLSource(tt.htmlSource)
 			if err != nil {
 				t.Errorf("TextContent(), failed to parse: %v", err)
 			}
 
-			if got := dom.TextContent(node); got != tt.want {
+			if got := dom.TextContent(doc.FirstChild); got != tt.want {
 				t.Errorf("TextContent() = %v, want %v", got, tt.want)
 			}
 		})
@@ -339,12 +342,12 @@ func TestOuterHTML(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			node, err := parseHTMLSource(tt.htmlSource)
+			doc, err := parseHTMLSource(tt.htmlSource)
 			if err != nil {
 				t.Errorf("dom.OuterHTML(), failed to parse: %v", err)
 			}
 
-			if got := dom.OuterHTML(node); got != tt.htmlSource {
+			if got := dom.OuterHTML(doc.FirstChild); got != tt.htmlSource {
 				t.Errorf("dom.OuterHTML() = %v, want %v", got, tt.htmlSource)
 			}
 		})
@@ -384,12 +387,12 @@ func TestInnerHTML(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			node, err := parseHTMLSource(tt.htmlSource)
+			doc, err := parseHTMLSource(tt.htmlSource)
 			if err != nil {
 				t.Errorf("InnerHTML(), failed to parse: %v", err)
 			}
 
-			if got := dom.InnerHTML(node); got != tt.want {
+			if got := dom.InnerHTML(doc.FirstChild); got != tt.want {
 				t.Errorf("InnerHTML() = %v, want %v", got, tt.want)
 			}
 		})
@@ -413,12 +416,12 @@ func TestId(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			node, err := parseHTMLSource(tt.htmlSource)
+			doc, err := parseHTMLSource(tt.htmlSource)
 			if err != nil {
 				t.Errorf("ID(), failed to parse: %v", err)
 			}
 
-			if got := dom.ID(node); got != tt.want {
+			if got := dom.ID(doc.FirstChild); got != tt.want {
 				t.Errorf("ID() = %v, want %v", got, tt.want)
 			}
 		})
@@ -450,12 +453,12 @@ func TestClassName(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			node, err := parseHTMLSource(tt.htmlSource)
+			doc, err := parseHTMLSource(tt.htmlSource)
 			if err != nil {
 				t.Errorf("ClassName(), failed to parse: %v", err)
 			}
 
-			if got := dom.ClassName(node); got != tt.want {
+			if got := dom.ClassName(doc.FirstChild); got != tt.want {
 				t.Errorf("ClassName() = %v, want %v", got, tt.want)
 			}
 		})
@@ -491,12 +494,13 @@ func TestChildren(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			node, err := parseHTMLSource(tt.htmlSource)
+			doc, err := parseHTMLSource(tt.htmlSource)
 			if err != nil {
 				t.Errorf("Children(), failed to parse: %v", err)
 			}
 
-			nodes := dom.Children(node)
+			div := doc.FirstChild
+			nodes := dom.Children(div)
 			if len(nodes) != len(tt.want) {
 				t.Errorf("Children() count = %v, want = %v", len(nodes), len(tt.want))
 			}
@@ -541,12 +545,13 @@ func TestChildNodes(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			node, err := parseHTMLSource(tt.htmlSource)
+			doc, err := parseHTMLSource(tt.htmlSource)
 			if err != nil {
 				t.Errorf("ChildNodes(), failed to parse: %v", err)
 			}
 
-			nodes := dom.ChildNodes(node)
+			div := doc.FirstChild
+			nodes := dom.ChildNodes(div)
 			if len(nodes) != len(tt.want) {
 				t.Errorf("ChildNodes() count = %v, want = %v", len(nodes), len(tt.want))
 			}
@@ -587,14 +592,54 @@ func TestFirstElementChild(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			node, err := parseHTMLSource(tt.htmlSource)
+			doc, err := parseHTMLSource(tt.htmlSource)
 			if err != nil {
 				t.Errorf("FirstElementChild(), failed to parse: %v", err)
 			}
 
-			firstChild := dom.FirstElementChild(node)
+			div := doc.FirstChild
+			firstChild := dom.FirstElementChild(div)
 			if got := dom.OuterHTML(firstChild); got != tt.want {
 				t.Errorf("FirstElementChild() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestPreviousElementSibling(t *testing.T) {
+	tests := []struct {
+		name       string
+		htmlSource string
+		want       string
+	}{{
+		name:       "has no sibling",
+		htmlSource: "<div></div>",
+		want:       "",
+	}, {
+		name:       "has directly element sibling",
+		htmlSource: "<p>Hey</p><div></div>",
+		want:       "<p>Hey</p>",
+	}, {
+		name:       "has no element sibling",
+		htmlSource: "I'm your sibling, you know<div></div>",
+		want:       "",
+	}, {
+		name:       "has distant element sibling",
+		htmlSource: "<p>This is the one you want</p> not this one <div></div>",
+		want:       "<p>This is the one you want</p>",
+	}}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			doc, err := parseHTMLSource(tt.htmlSource)
+			if err != nil {
+				t.Errorf("PreviousElementSibling(), failed to parse: %v", err)
+			}
+
+			div := dom.GetElementsByTagName(doc, "div")[0]
+			prevSibling := dom.PreviousElementSibling(div)
+			if got := dom.OuterHTML(prevSibling); got != tt.want {
+				t.Errorf("PreviousElementSibling() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -625,12 +670,13 @@ func TestNextElementSibling(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			node, err := parseHTMLSource(tt.htmlSource)
+			doc, err := parseHTMLSource(tt.htmlSource)
 			if err != nil {
 				t.Errorf("NextElementSibling(), failed to parse: %v", err)
 			}
 
-			nextSibling := dom.NextElementSibling(node)
+			div := dom.GetElementsByTagName(doc, "div")[0]
+			nextSibling := dom.NextElementSibling(div)
 			if got := dom.OuterHTML(nextSibling); got != tt.want {
 				t.Errorf("NextElementSibling() = %v, want %v", got, tt.want)
 			}
@@ -649,11 +695,12 @@ func TestAppendChild(t *testing.T) {
 			t.Errorf("AppendChild(), failed to parse: %v", err)
 		}
 
-		p := dom.GetElementsByTagName(doc, "p")[0]
-		span := dom.GetElementsByTagName(doc, "span")[0]
+		div := doc.FirstChild
+		p := dom.GetElementsByTagName(div, "p")[0]
+		span := dom.GetElementsByTagName(div, "span")[0]
 
 		dom.AppendChild(p, span)
-		if got := dom.OuterHTML(doc); got != want {
+		if got := dom.OuterHTML(div); got != want {
 			t.Errorf("AppendChild() = %v, want %v", got, want)
 		}
 	})
@@ -668,11 +715,12 @@ func TestAppendChild(t *testing.T) {
 			t.Errorf("AppendChild(), failed to parse: %v", err)
 		}
 
-		p := dom.GetElementsByTagName(doc, "p")[0]
+		div := doc.FirstChild
+		p := dom.GetElementsByTagName(div, "p")[0]
 		newChild := dom.CreateElement("span")
 
 		dom.AppendChild(p, newChild)
-		if got := dom.OuterHTML(doc); got != want {
+		if got := dom.OuterHTML(div); got != want {
 			t.Errorf("AppendChild() = %v, want %v", got, want)
 		}
 	})
@@ -689,11 +737,12 @@ func TestPrependChild(t *testing.T) {
 			t.Errorf("PrependChild(), failed to parse: %v", err)
 		}
 
-		p := dom.GetElementsByTagName(doc, "p")[0]
-		span := dom.GetElementsByTagName(doc, "span")[0]
+		div := doc.FirstChild
+		p := dom.GetElementsByTagName(div, "p")[0]
+		span := dom.GetElementsByTagName(div, "span")[0]
 
 		dom.PrependChild(p, span)
-		if got := dom.OuterHTML(doc); got != want {
+		if got := dom.OuterHTML(div); got != want {
 			t.Errorf("PrependChild() = %v, want %v", got, want)
 		}
 	})
@@ -708,11 +757,12 @@ func TestPrependChild(t *testing.T) {
 			t.Errorf("PrependChild(), failed to parse: %v", err)
 		}
 
-		p := dom.GetElementsByTagName(doc, "p")[0]
+		div := doc.FirstChild
+		p := dom.GetElementsByTagName(div, "p")[0]
 		newChild := dom.CreateElement("span")
 
 		dom.PrependChild(p, newChild)
-		if got := dom.OuterHTML(doc); got != want {
+		if got := dom.OuterHTML(div); got != want {
 			t.Errorf("PrependChild() = %v, want %v", got, want)
 		}
 	})
@@ -729,11 +779,12 @@ func TestReplaceChild(t *testing.T) {
 			t.Errorf("ReplaceNode(), failed to parse: %v", err)
 		}
 
-		p := dom.GetElementsByTagName(doc, "p")[0]
-		span := dom.GetElementsByTagName(doc, "span")[0]
+		div := doc.FirstChild
+		p := dom.GetElementsByTagName(div, "p")[0]
+		span := dom.GetElementsByTagName(div, "span")[0]
 
-		dom.ReplaceChild(doc, span, p)
-		if got := dom.OuterHTML(doc); got != want {
+		dom.ReplaceChild(div, span, p)
+		if got := dom.OuterHTML(div); got != want {
 			t.Errorf("ReplaceNode() = %v, want %v", got, want)
 		}
 	})
@@ -748,11 +799,12 @@ func TestReplaceChild(t *testing.T) {
 			t.Errorf("ReplaceNode(), failed to parse: %v", err)
 		}
 
-		p := dom.GetElementsByTagName(doc, "p")[0]
+		div := doc.FirstChild
+		p := dom.GetElementsByTagName(div, "p")[0]
 		newChild := dom.CreateElement("span")
 
-		dom.ReplaceChild(doc, newChild, p)
-		if got := dom.OuterHTML(doc); got != want {
+		dom.ReplaceChild(div, newChild, p)
+		if got := dom.OuterHTML(div); got != want {
 			t.Errorf("ReplaceNode() = %v, want %v", got, want)
 		}
 	})
@@ -833,12 +885,12 @@ func TestCloneNode(t *testing.T) {
 				want = tt.htmlSource
 			}
 
-			node, err := parseHTMLSource(tt.htmlSource)
+			doc, err := parseHTMLSource(tt.htmlSource)
 			if err != nil {
 				t.Errorf("CloneNode(), failed to parse: %v", err)
 			}
 
-			clone := dom.CloneNode(node)
+			clone := dom.CloneNode(doc.FirstChild)
 			if got := dom.OuterHTML(clone); got != want {
 				t.Errorf("CloneNode() = %v, want %v", got, want)
 			}
@@ -898,9 +950,10 @@ func TestGetAllNodesWithTag(t *testing.T) {
 		want: 0,
 	}}
 
+	mainDiv := doc.FirstChild
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := len(dom.GetAllNodesWithTag(doc, tt.tags...)); got != tt.want {
+			if got := len(dom.GetAllNodesWithTag(mainDiv, tt.tags...)); got != tt.want {
 				t.Errorf("GetAllNodesWithTag() = %v, want %v", got, tt.want)
 			}
 		})
@@ -940,10 +993,11 @@ func TestRemoveNodes(t *testing.T) {
 				t.Errorf("RemoveNodes(), failed to parse: %v", err)
 			}
 
-			elements := dom.GetElementsByTagName(doc, "*")
+			mainDiv := doc.FirstChild
+			elements := dom.GetElementsByTagName(mainDiv, "*")
 			dom.RemoveNodes(elements, tt.filter)
 
-			if got := dom.OuterHTML(doc); got != tt.want {
+			if got := dom.OuterHTML(mainDiv); got != tt.want {
 				t.Errorf("RemoveNodes() = %v, want %v", got, tt.want)
 			}
 		})
@@ -976,13 +1030,14 @@ func TestSetTextContent(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			root, err := parseHTMLSource(tt.htmlSource)
+			doc, err := parseHTMLSource(tt.htmlSource)
 			if err != nil {
 				t.Errorf("SetTextContent(), failed to parse: %v", err)
 			}
 
-			dom.SetTextContent(root, textContent)
-			if got := dom.OuterHTML(root); got != expectedResult {
+			div := doc.FirstChild
+			dom.SetTextContent(div, textContent)
+			if got := dom.OuterHTML(div); got != expectedResult {
 				t.Errorf("SetTextContent() = %v, want %v", got, expectedResult)
 			}
 		})
@@ -996,5 +1051,5 @@ func parseHTMLSource(htmlSource string) (*html.Node, error) {
 	}
 
 	body := dom.GetElementsByTagName(doc, "body")[0]
-	return body.FirstChild, nil
+	return body, nil
 }

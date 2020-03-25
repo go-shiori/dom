@@ -235,6 +235,18 @@ func FirstElementChild(node *html.Node) *html.Node {
 	return nil
 }
 
+// PreviousElementSibling returns the the Element immediately prior
+// to the specified one in its parent's children list, or null if
+// the specified element is the first one in the list.
+func PreviousElementSibling(node *html.Node) *html.Node {
+	for sibling := node.PrevSibling; sibling != nil; sibling = sibling.PrevSibling {
+		if sibling.Type == html.ElementNode {
+			return sibling
+		}
+	}
+	return nil
+}
+
 // NextElementSibling returns the Element immediately following
 // the specified one in its parent's children list, or nil if the
 // specified Element is the last one in the list.
