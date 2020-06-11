@@ -8,6 +8,192 @@ import (
 	"golang.org/x/net/html"
 )
 
+func TestQuerySelectorAll(t *testing.T) {
+	htmlSource := `<body>
+		<p></p>
+		<h1 id="heading"></h1>
+		<p id="paragraph"></p>
+		<p class="class-a"></p>
+		<span class="class-a"></span>
+		<div class="class-a"></div>
+		<p class="class-b"></p>
+		<div class="class-b"></div>
+		<span class="class-c"></span>
+		<p class="class-a class-b"></p>
+		<p class="class-a class-c"></p>
+		<p class="class-a class-b class-c"></p>
+	</body>`
+
+	doc, err := parseHTMLSource(htmlSource)
+	if err != nil {
+		t.Errorf("QuerySelectorAll(), failed to parse: %v", err)
+	}
+
+	tests := map[string]int{
+		"p":                                      7,
+		"h1":                                     1,
+		"div":                                    2,
+		"span":                                   2,
+		"#heading":                               1,
+		"#paragraph":                             1,
+		"#unknown-id":                            0,
+		".class-a":                               6,
+		".class-b":                               4,
+		".class-c":                               3,
+		".class-a.class-b":                       2,
+		".class-a.class-c":                       2,
+		".class-b.class-c":                       1,
+		".class-a.class-b.class-c":               1,
+		".class-a.class-b.class-d":               0,
+		".class-a, .class-b":                     8,
+		".class-a, .class-c":                     7,
+		".class-b, .class-c":                     6,
+		".class-a, .class-b, .class-c":           9,
+		".class-a, .class-b, .class-c, .class-d": 9,
+	}
+
+	for selectors, count := range tests {
+		t.Run(selectors, func(t *testing.T) {
+			if got := len(dom.QuerySelectorAll(doc, selectors)); got != count {
+				t.Errorf("QuerySelectorAll() = %v, want %v", got, count)
+			}
+		})
+	}
+}
+
+func TestQuerySelector(t *testing.T) {
+	htmlSource := `<body>
+		<p></p>
+		<h1 id="heading"></h1>
+		<p id="paragraph"></p>
+		<p class="class-a"></p>
+		<span class="class-a"></span>
+		<div class="class-a"></div>
+		<p class="class-b"></p>
+		<div class="class-b"></div>
+		<span class="class-c"></span>
+		<p class="class-a class-b"></p>
+		<p class="class-a class-c"></p>
+		<p class="class-a class-b class-c"></p>
+	</body>`
+
+	doc, err := parseHTMLSource(htmlSource)
+	if err != nil {
+		t.Errorf("QuerySelector(), failed to parse: %v", err)
+	}
+
+	tests := map[string]string{
+		"p":                                      "p",
+		"h1":                                     "h1",
+		"div":                                    "div",
+		"span":                                   "span",
+		"#heading":                               "h1",
+		"#paragraph":                             "p",
+		"#unknown-id":                            "",
+		".class-a":                               "p",
+		".class-b":                               "p",
+		".class-c":                               "span",
+		".class-a.class-b":                       "p",
+		".class-a.class-c":                       "p",
+		".class-b.class-c":                       "p",
+		".class-a.class-b.class-c":               "p",
+		".class-a.class-b.class-d":               "",
+		".class-a, .class-b":                     "p",
+		".class-a, .class-c":                     "p",
+		".class-b, .class-c":                     "p",
+		".class-a, .class-b, .class-c":           "p",
+		".class-a, .class-b, .class-c, .class-d": "p",
+	}
+
+	for selectors, tagName := range tests {
+		t.Run(selectors, func(t *testing.T) {
+			node := dom.QuerySelector(doc, selectors)
+
+			result := ""
+			if node != nil {
+				result = dom.TagName(node)
+			}
+
+			if result != tagName {
+				t.Errorf("QuerySelector() = %v, want %v", result, tagName)
+			}
+		})
+	}
+}
+
+func TestGetElementByID(t *testing.T) {
+	htmlSource := `<div>
+		<h1 id="heading"></h1>
+		<p id="paragraph"></p>
+		<p id="paragraph"></p>
+		<p></p>
+	</div>`
+
+	doc, err := parseHTMLSource(htmlSource)
+	if err != nil {
+		t.Errorf("GetElementByID(), failed to parse: %v", err)
+	}
+
+	tests := map[string]string{
+		"heading":    "h1",
+		"paragraph":  "p",
+		"unknown-id": "",
+	}
+
+	for id, tagName := range tests {
+		t.Run(id, func(t *testing.T) {
+			node := dom.GetElementByID(doc, id)
+
+			result := ""
+			if node != nil {
+				result = dom.TagName(node)
+			}
+
+			if result != tagName {
+				t.Errorf("TestGetElementByID() = %v, want %v", result, tagName)
+			}
+		})
+	}
+}
+
+func TestGetElementsByClassName(t *testing.T) {
+	htmlSource := `<div>
+		<p class="class-a"></p>
+		<p class="class-a"></p>
+		<p class="class-a"></p>
+		<p class="class-b"></p>
+		<p class="class-b"></p>
+		<p class="class-c"></p>
+		<p class="class-a class-b"></p>
+		<p class="class-a class-c"></p>
+		<p class="class-a class-b class-c"></p>
+	</div>`
+
+	doc, err := parseHTMLSource(htmlSource)
+	if err != nil {
+		t.Errorf("GetElementsByClassName(), failed to parse: %v", err)
+	}
+
+	tests := map[string]int{
+		"":                        0,
+		"class-a":                 6,
+		"class-b":                 4,
+		"class-c":                 3,
+		"class-a class-b":         2,
+		"class-a class-c":         2,
+		"class-b class-c":         1,
+		"class-a class-b class-c": 1,
+	}
+
+	for className, count := range tests {
+		t.Run(className, func(t *testing.T) {
+			if got := len(dom.GetElementsByClassName(doc, className)); got != count {
+				t.Errorf("GetElementsByClassName() = %v, want %v", got, count)
+			}
+		})
+	}
+}
+
 func TestGetElementsByTagName(t *testing.T) {
 	htmlSource := `<div>
 		<h1></h1>

@@ -4,8 +4,114 @@ import (
 	"bytes"
 	"strings"
 
+	"github.com/andybalholm/cascadia"
 	"golang.org/x/net/html"
 )
+
+// QuerySelectorAll returns array of document's elements that match
+// the specified group of selectors.
+func QuerySelectorAll(doc *html.Node, selectors string) []*html.Node {
+	matcher, err := cascadia.ParseGroup(selectors)
+	if err != nil {
+		return nil
+	}
+
+	return cascadia.QueryAll(doc, matcher)
+}
+
+// QuerySelector returns the first document's element that match
+// the specified group of selectors.
+func QuerySelector(doc *html.Node, selectors string) *html.Node {
+	matcher, err := cascadia.ParseGroup(selectors)
+	if err != nil {
+		return nil
+	}
+
+	return cascadia.Query(doc, matcher)
+}
+
+// GetElementByID returns a Node object representing the element whose id
+// property matches the specified string.
+func GetElementByID(doc *html.Node, id string) *html.Node {
+	if id == "" {
+		return nil
+	}
+
+	var results []*html.Node
+	var finder func(*html.Node)
+
+	finder = func(node *html.Node) {
+		nodeID := GetAttribute(node, "id")
+		nodeID = strings.TrimSpace(nodeID)
+
+		if node.Type == html.ElementNode && nodeID == id {
+			results = append(results, node)
+		}
+
+		for child := node.FirstChild; child != nil; child = child.NextSibling {
+			finder(child)
+		}
+	}
+
+	for child := doc.FirstChild; child != nil; child = child.NextSibling {
+		finder(child)
+
+		if len(results) > 0 {
+			return results[0]
+		}
+	}
+
+	return nil
+}
+
+// GetElementsByClassName returns an array of all child elements which
+// have all of the given class name(s).
+func GetElementsByClassName(doc *html.Node, classNames string) []*html.Node {
+	// Convert class name to map
+	classes := map[string]struct{}{}
+	for _, class := range strings.Fields(classNames) {
+		classes[class] = struct{}{}
+	}
+
+	nClasses := len(classes)
+	if nClasses == 0 {
+		return nil
+	}
+
+	// Create finder method
+	var results []*html.Node
+	var finder func(*html.Node)
+	var allClassExist func(*html.Node) bool
+
+	allClassExist = func(node *html.Node) bool {
+		matchCount := 0
+		nodeClasses := GetAttribute(node, "class")
+		for _, nodeClass := range strings.Fields(nodeClasses) {
+			if _, exist := classes[nodeClass]; exist {
+				matchCount++
+			}
+		}
+
+		return matchCount == nClasses
+	}
+
+	finder = func(node *html.Node) {
+		if node.Type == html.ElementNode && allClassExist(node) {
+			results = append(results, node)
+		}
+
+		for child := node.FirstChild; child != nil; child = child.NextSibling {
+			finder(child)
+		}
+	}
+
+	// Check all nodes
+	for child := doc.FirstChild; child != nil; child = child.NextSibling {
+		finder(child)
+	}
+
+	return results
+}
 
 // GetElementsByTagName returns a collection of all elements in the document with
 // the specified tag name, as an array of Node object.
