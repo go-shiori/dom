@@ -499,3 +499,30 @@ func SetTextContent(node *html.Node, text string) {
 		Data: text,
 	})
 }
+
+// SetInnerHTML sets inner HTML of the specified node.
+func SetInnerHTML(node *html.Node, rawHTML string) {
+	// Parse raw HTML
+	parsedHTML, err := html.Parse(strings.NewReader(rawHTML))
+	if err != nil || parsedHTML == nil {
+		return
+	}
+
+	// Remove node's current children
+	child := node.FirstChild
+	for child != nil {
+		nextSibling := child.NextSibling
+		node.RemoveChild(child)
+		child = nextSibling
+	}
+
+	// Put content of parsed HTML to the node
+	if body := QuerySelector(parsedHTML, "body"); body != nil {
+		bodyChild := body.FirstChild
+		for bodyChild != nil {
+			nextSibling := bodyChild.NextSibling
+			AppendChild(node, bodyChild)
+			bodyChild = nextSibling
+		}
+	}
+}

@@ -1230,6 +1230,46 @@ func TestSetTextContent(t *testing.T) {
 	}
 }
 
+func TestSetInnerHTML(t *testing.T) {
+	newHTML := "<p><b>Taaake</b> oooon <em>meee</em></p>"
+	expectedResult := "<div>" + newHTML + "</div>"
+
+	tests := []struct {
+		name       string
+		htmlSource string
+	}{{
+		name:       "single div",
+		htmlSource: "<div></div>",
+	}, {
+		name:       "div with one children",
+		htmlSource: "<div><p>Hello</p></div>",
+	}, {
+		name:       "div with many children",
+		htmlSource: "<div><p>Hello</p><p>I'm</p><p>Happy</p></div>",
+	}, {
+		name:       "div with nested children",
+		htmlSource: "<div><p>Hello I'm <span>Happy</span></p></div>",
+	}, {
+		name:       "div with mixed text and element node",
+		htmlSource: "<div><p>Hello I'm</p>happy</div>",
+	}}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			doc, err := parseHTMLSource(tt.htmlSource)
+			if err != nil {
+				t.Errorf("SetInnerHTML(), failed to parse: %v", err)
+			}
+
+			div := doc.FirstChild
+			dom.SetInnerHTML(div, newHTML)
+			if got := dom.OuterHTML(div); got != expectedResult {
+				t.Errorf("SetInnerHTML() = %v, want %v", got, expectedResult)
+			}
+		})
+	}
+}
+
 func parseHTMLSource(htmlSource string) (*html.Node, error) {
 	doc, err := html.Parse(strings.NewReader(htmlSource))
 	if err != nil {
