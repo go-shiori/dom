@@ -376,7 +376,7 @@ func NextElementSibling(node *html.Node) *html.Node {
 // current position to the new position.
 func AppendChild(node *html.Node, child *html.Node) {
 	if child.Parent != nil {
-		temp := CloneNode(child, true)
+		temp := Clone(child, true)
 		node.AppendChild(temp)
 		child.Parent.RemoveChild(child)
 	} else {
@@ -388,7 +388,7 @@ func AppendChild(node *html.Node, child *html.Node) {
 // beginning of the list of children of a specified parent node.
 func PrependChild(node *html.Node, child *html.Node) {
 	if child.Parent != nil {
-		temp := CloneNode(child, true)
+		temp := Clone(child, true)
 		child.Parent.RemoveChild(child)
 		child = temp
 	}
@@ -413,7 +413,7 @@ func ReplaceChild(parent *html.Node, newChild *html.Node, oldChild *html.Node) (
 	}
 
 	if newChild.Parent != nil {
-		tmp := CloneNode(newChild, true)
+		tmp := Clone(newChild, true)
 		newChild.Parent.RemoveChild(newChild)
 		newChild = tmp
 	}
@@ -436,10 +436,9 @@ func IncludeNode(nodeList []*html.Node, node *html.Node) bool {
 	return false
 }
 
-// CloneNode returns a deep clone of the node and its children.
-// However, it will be detached from the original's parents
-// and siblings.
-func CloneNode(src *html.Node, deep bool) *html.Node {
+// Clone returns a clone of the node and (if specified) its children.
+// However, it will be detached from the original's parents and siblings.
+func Clone(src *html.Node, deep bool) *html.Node {
 	clone := &html.Node{
 		Type:     src.Type,
 		DataAtom: src.DataAtom,
@@ -449,7 +448,7 @@ func CloneNode(src *html.Node, deep bool) *html.Node {
 
 	if deep {
 		for child := src.FirstChild; child != nil; child = child.NextSibling {
-			clone.AppendChild(CloneNode(child, deep))
+			clone.AppendChild(Clone(child, deep))
 		}
 	}
 

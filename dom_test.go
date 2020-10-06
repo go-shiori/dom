@@ -1076,7 +1076,7 @@ func TestCloneNode(t *testing.T) {
 				t.Errorf("CloneNode(), failed to parse: %v", err)
 			}
 
-			clone := dom.CloneNode(doc.FirstChild, true)
+			clone := dom.Clone(doc.FirstChild, true)
 			if got := dom.OuterHTML(clone); got != want {
 				t.Errorf("CloneNode() = %v, want %v", got, want)
 			}
