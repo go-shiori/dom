@@ -404,6 +404,8 @@ func PrependChild(node *html.Node, child *html.Node) {
 // ReplaceChild replaces a child node within the given (parent) node.
 // If the new child is already exist in document, ReplaceChild() will move it
 // from its current position to replace old child. Returns both the new and old child.
+//
+// TODO: I'm note sure but I *think* there are some issues here. Check later I guess.
 func ReplaceChild(parent *html.Node, newChild *html.Node, oldChild *html.Node) (*html.Node, *html.Node) {
 	if parent == nil {
 		return newChild, oldChild
