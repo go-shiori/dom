@@ -379,6 +379,7 @@ func AppendChild(node *html.Node, child *html.Node) {
 		temp := Clone(child, true)
 		node.AppendChild(temp)
 		child.Parent.RemoveChild(child)
+		*child = *temp
 	} else {
 		node.AppendChild(child)
 	}
@@ -390,7 +391,7 @@ func PrependChild(node *html.Node, child *html.Node) {
 	if child.Parent != nil {
 		temp := Clone(child, true)
 		child.Parent.RemoveChild(child)
-		child = temp
+		*child = *temp
 	}
 
 	if node.FirstChild != nil {
@@ -405,24 +406,25 @@ func PrependChild(node *html.Node, child *html.Node) {
 // from its current position to replace old child. Returns both the new and old child.
 func ReplaceChild(parent *html.Node, newChild *html.Node, oldChild *html.Node) (*html.Node, *html.Node) {
 	if parent == nil {
-		return nil, nil
+		return newChild, oldChild
 	}
 
 	if oldChild.Parent != parent {
-		return nil, nil
+		return newChild, oldChild
 	}
 
 	if newChild.Parent != nil {
 		tmp := Clone(newChild, true)
 		newChild.Parent.RemoveChild(newChild)
 		newChild = tmp
+	} else {
+		newChild.Parent = nil
+		newChild.PrevSibling = nil
+		newChild.NextSibling = nil
 	}
 
-	newChild.PrevSibling = nil
-	newChild.NextSibling = nil
 	parent.InsertBefore(newChild, oldChild)
 	parent.RemoveChild(oldChild)
-
 	return newChild, oldChild
 }
 
