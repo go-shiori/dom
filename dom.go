@@ -2,10 +2,18 @@ package dom
 
 import (
 	"bytes"
+	"regexp"
 	"strings"
 
 	"github.com/andybalholm/cascadia"
 	"golang.org/x/net/html"
+)
+
+var (
+	rxPunctuation      = regexp.MustCompile(`\s+([.?!,:;])(\S+)`)
+	rxTempNewline      = regexp.MustCompile(`\s*\|\\/\|\s*`)
+	rxDisplayNone      = regexp.MustCompile(`(?i)display:\s*none`)
+	rxVisibilityHidden = regexp.MustCompile(`(?i)visibility:\s*(:?hidden|collapse)`)
 )
 
 // QuerySelectorAll returns array of document's elements that match
@@ -246,6 +254,52 @@ func TextContent(node *html.Node) string {
 
 	finder(node)
 	return buffer.String()
+}
+
+// InnerText in JS used to capture text from an element while excluding text from hidden
+// children. A child is hidden if it's computed width is 0, whether because its CSS (e.g
+// `display: none`, `visibility: hidden`, etc), or if the child has `hidden` attribute.
+// Since we can't compute stylesheet, we only look at `hidden` attribute and inline style.
+//
+// Besides excluding text from hidden children, difference between this function and
+// `TextContent` is the latter will skip <br> tag while this function will preserve
+// <br> as newline.
+func InnerText(node *html.Node) string {
+	var buffer bytes.Buffer
+	var finder func(*html.Node)
+
+	finder = func(n *html.Node) {
+		switch n.Type {
+		case html.TextNode:
+			buffer.WriteString(" " + n.Data + " ")
+
+		case html.ElementNode:
+			if n.Data == "br" {
+				buffer.WriteString(`|\/|`)
+				return
+			}
+
+			if HasAttribute(n, "hidden") {
+				return
+			}
+
+			styleAttr := GetAttribute(n, "style")
+			if rxDisplayNone.MatchString(styleAttr) || rxVisibilityHidden.MatchString(styleAttr) {
+				return
+			}
+		}
+
+		for child := n.FirstChild; child != nil; child = child.NextSibling {
+			finder(child)
+		}
+	}
+
+	finder(node)
+	text := buffer.String()
+	text = strings.Join(strings.Fields(text), " ")
+	text = rxPunctuation.ReplaceAllString(text, "$1 $2")
+	text = rxTempNewline.ReplaceAllString(text, "\n")
+	return text
 }
 
 // OuterHTML returns an HTML serialization of the element and its descendants.
