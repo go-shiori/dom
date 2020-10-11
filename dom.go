@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	rxPunctuation      = regexp.MustCompile(`\s+([.?!,:;])(\S+)`)
+	rxPunctuation      = regexp.MustCompile(`\s+([.?!,;])\s*(\S*)`)
 	rxTempNewline      = regexp.MustCompile(`\s*\|\\/\|\s*`)
 	rxDisplayNone      = regexp.MustCompile(`(?i)display:\s*none`)
 	rxVisibilityHidden = regexp.MustCompile(`(?i)visibility:\s*(:?hidden|collapse)`)
