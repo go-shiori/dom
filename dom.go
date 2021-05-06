@@ -429,24 +429,14 @@ func NextElementSibling(node *html.Node) *html.Node {
 // existing node in the document, AppendChild() moves it from its
 // current position to the new position.
 func AppendChild(node *html.Node, child *html.Node) {
-	if child.Parent != nil {
-		temp := Clone(child, true)
-		node.AppendChild(temp)
-		child.Parent.RemoveChild(child)
-		*child = *temp
-	} else {
-		node.AppendChild(child)
-	}
+	detachChild(child)
+	node.AppendChild(child)
 }
 
 // PrependChild works like AppendChild() except it adds a node to the
 // beginning of the list of children of a specified parent node.
 func PrependChild(node *html.Node, child *html.Node) {
-	if child.Parent != nil {
-		temp := Clone(child, true)
-		child.Parent.RemoveChild(child)
-		*child = *temp
-	}
+	detachChild(child)
 
 	if node.FirstChild != nil {
 		node.InsertBefore(child, node.FirstChild)
@@ -461,24 +451,18 @@ func PrependChild(node *html.Node, child *html.Node) {
 //
 // TODO: I'm note sure but I *think* there are some issues here. Check later I guess.
 func ReplaceChild(parent *html.Node, newChild *html.Node, oldChild *html.Node) (*html.Node, *html.Node) {
+	// Make sure parent is specified
 	if parent == nil {
 		return newChild, oldChild
 	}
 
+	// Make sure the specified parent IS the parent of the old child
 	if oldChild.Parent != parent {
 		return newChild, oldChild
 	}
 
-	if newChild.Parent != nil {
-		tmp := Clone(newChild, true)
-		newChild.Parent.RemoveChild(newChild)
-		newChild = tmp
-	} else {
-		newChild.Parent = nil
-		newChild.PrevSibling = nil
-		newChild.NextSibling = nil
-	}
-
+	// Detach the new child
+	detachChild(newChild)
 	parent.InsertBefore(newChild, oldChild)
 	parent.RemoveChild(oldChild)
 	return newChild, oldChild
@@ -582,5 +566,21 @@ func SetInnerHTML(node *html.Node, rawHTML string) {
 			AppendChild(node, bodyChild)
 			bodyChild = nextSibling
 		}
+	}
+}
+
+func detachChild(child *html.Node) {
+	if child.Parent != nil || child.PrevSibling != nil || child.NextSibling != nil {
+		if child.PrevSibling != nil {
+			child.PrevSibling.NextSibling = child.NextSibling
+		}
+
+		if child.NextSibling != nil {
+			child.NextSibling.PrevSibling = child.PrevSibling
+		}
+
+		child.Parent = nil
+		child.PrevSibling = nil
+		child.NextSibling = nil
 	}
 }
