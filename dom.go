@@ -571,6 +571,16 @@ func SetInnerHTML(node *html.Node, rawHTML string) {
 
 func detachChild(child *html.Node) {
 	if child.Parent != nil || child.PrevSibling != nil || child.NextSibling != nil {
+		if child.Parent != nil {
+			if child.Parent.FirstChild == child {
+				child.Parent.FirstChild = child.NextSibling
+			}
+
+			if child.Parent.LastChild == child {
+				child.Parent.LastChild = child.PrevSibling
+			}
+		}
+
 		if child.PrevSibling != nil {
 			child.PrevSibling.NextSibling = child.NextSibling
 		}
