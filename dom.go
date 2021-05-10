@@ -429,19 +429,24 @@ func NextElementSibling(node *html.Node) *html.Node {
 // existing node in the document, AppendChild() moves it from its
 // current position to the new position.
 func AppendChild(node *html.Node, child *html.Node) {
-	detachChild(child)
-	node.AppendChild(child)
+	// Make sure node is not void
+	if !IsVoidElement(node) {
+		detachChild(child)
+		node.AppendChild(child)
+	}
 }
 
 // PrependChild works like AppendChild() except it adds a node to the
 // beginning of the list of children of a specified parent node.
 func PrependChild(node *html.Node, child *html.Node) {
-	detachChild(child)
-
-	if node.FirstChild != nil {
-		node.InsertBefore(child, node.FirstChild)
-	} else {
-		node.AppendChild(child)
+	// Make sure node is not void
+	if !IsVoidElement(node) {
+		detachChild(child)
+		if node.FirstChild != nil {
+			node.InsertBefore(child, node.FirstChild)
+		} else {
+			node.AppendChild(child)
+		}
 	}
 }
 
@@ -451,8 +456,8 @@ func PrependChild(node *html.Node, child *html.Node) {
 //
 // TODO: I'm note sure but I *think* there are some issues here. Check later I guess.
 func ReplaceChild(parent *html.Node, newChild *html.Node, oldChild *html.Node) (*html.Node, *html.Node) {
-	// Make sure parent is specified
-	if parent == nil {
+	// Make sure parent is specified and not void
+	if parent == nil && !IsVoidElement(parent) {
 		return newChild, oldChild
 	}
 
@@ -566,6 +571,25 @@ func SetInnerHTML(node *html.Node, rawHTML string) {
 			AppendChild(node, bodyChild)
 			bodyChild = nextSibling
 		}
+	}
+}
+
+// IsVoidElement check whether a node can have any contents or not.
+// Return true if element is void (can't have any children).
+func IsVoidElement(n *html.Node) bool {
+	// If it's not element, it's void
+	if n.Type != html.ElementNode {
+		return true
+	}
+
+	// Check tag name
+	switch n.Data {
+	case "area", "base", "br", "col", "embed", "hr",
+		"img", "input", "keygen", "link", "meta",
+		"param", "source", "track", "wbr":
+		return true
+	default:
+		return false
 	}
 }
 

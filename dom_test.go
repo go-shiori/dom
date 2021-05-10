@@ -910,6 +910,18 @@ func TestAppendChild(t *testing.T) {
 			t.Errorf("AppendChild() = %v, want %v", got, want)
 		}
 	})
+
+	// Parent is void
+	t.Run("parent is void", func(t *testing.T) {
+		br := dom.CreateElement("br")
+		span := dom.CreateElement("span")
+		dom.AppendChild(br, span)
+
+		want := "<br/>"
+		if got := dom.OuterHTML(br); got != want {
+			t.Errorf("AppendChild() = %v, want %v", got, want)
+		}
+	})
 }
 
 func TestPrependChild(t *testing.T) {
@@ -949,6 +961,18 @@ func TestPrependChild(t *testing.T) {
 
 		dom.PrependChild(p, newChild)
 		if got := dom.OuterHTML(div); got != want {
+			t.Errorf("PrependChild() = %v, want %v", got, want)
+		}
+	})
+
+	// Parent is void
+	t.Run("parent is void", func(t *testing.T) {
+		br := dom.CreateElement("br")
+		span := dom.CreateElement("span")
+		dom.PrependChild(br, span)
+
+		want := "<br/>"
+		if got := dom.OuterHTML(br); got != want {
 			t.Errorf("PrependChild() = %v, want %v", got, want)
 		}
 	})
