@@ -534,6 +534,10 @@ func RemoveNodes(nodeList []*html.Node, filterFn func(*html.Node) bool) {
 
 // SetTextContent sets the text content of the specified node.
 func SetTextContent(node *html.Node, text string) {
+	if IsVoidElement(node) {
+		return
+	}
+
 	child := node.FirstChild
 	for child != nil {
 		nextSibling := child.NextSibling

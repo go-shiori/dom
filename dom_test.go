@@ -1252,6 +1252,17 @@ func TestSetTextContent(t *testing.T) {
 			}
 		})
 	}
+
+	// Void element
+	t.Run("node is void", func(t *testing.T) {
+		br := dom.CreateElement("br")
+		dom.SetTextContent(br, "XXX")
+
+		want := "<br/>"
+		if got := dom.OuterHTML(br); got != want {
+			t.Errorf("SetTextContent() = %v, want %v", got, want)
+		}
+	})
 }
 
 func TestSetInnerHTML(t *testing.T) {
