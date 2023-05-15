@@ -89,9 +89,7 @@ func GetElementsByClassName(doc *html.Node, classNames string) []*html.Node {
 	// Create finder method
 	var results []*html.Node
 	var finder func(*html.Node)
-	var allClassExist func(*html.Node) bool
-
-	allClassExist = func(node *html.Node) bool {
+	allClassExist := func(node *html.Node) bool {
 		matchCount := 0
 		nodeClasses := GetAttribute(node, "class")
 		for _, nodeClass := range strings.Fields(nodeClasses) {
@@ -431,7 +429,7 @@ func NextElementSibling(node *html.Node) *html.Node {
 func AppendChild(node *html.Node, child *html.Node) {
 	// Make sure node is not void
 	if !IsVoidElement(node) {
-		detachChild(child)
+		DetachChild(child)
 		node.AppendChild(child)
 	}
 }
@@ -441,7 +439,7 @@ func AppendChild(node *html.Node, child *html.Node) {
 func PrependChild(node *html.Node, child *html.Node) {
 	// Make sure node is not void
 	if !IsVoidElement(node) {
-		detachChild(child)
+		DetachChild(child)
 		if node.FirstChild != nil {
 			node.InsertBefore(child, node.FirstChild)
 		} else {
@@ -467,7 +465,7 @@ func ReplaceChild(parent *html.Node, newChild *html.Node, oldChild *html.Node) (
 	}
 
 	// Detach the new child
-	detachChild(newChild)
+	DetachChild(newChild)
 	parent.InsertBefore(newChild, oldChild)
 	parent.RemoveChild(oldChild)
 	return newChild, oldChild
@@ -597,7 +595,7 @@ func IsVoidElement(n *html.Node) bool {
 	}
 }
 
-func detachChild(child *html.Node) {
+func DetachChild(child *html.Node) {
 	if child.Parent != nil || child.PrevSibling != nil || child.NextSibling != nil {
 		if child.Parent != nil {
 			if child.Parent.FirstChild == child {
